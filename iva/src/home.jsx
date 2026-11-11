@@ -1,15 +1,26 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Sparkles, Sun, Moon, Crown, LogOut, Film, Users, Scissors, CalendarCheck, Clock, Play,
-  Image as ImageIcon, Trash2, Plus, X, Phone, Mail, User, CheckCircle2, Eye, Wallet,
+  Image as ImageIcon, Trash2, Plus, X, Phone, Mail, User, Eye, Wallet,
   ShieldCheck, Upload, LayoutDashboard, CalendarDays,
-  Star, Leaf, Heart, Award, MapPin, ChevronDown, ArrowRight, Instagram,
+  Star, Leaf, Heart, Award, MapPin, ChevronDown, ArrowRight,
 } from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/* Setup: tailwind needs `darkMode: "class"` (v3) or                    */
-/* `@custom-variant dark (&:where(.dark, .dark *));` (v4) in your CSS.  */
-/* ------------------------------------------------------------------ */
+/* Local icons: avoids any dependency on lucide-react's renamed/removed exports. */
+const CheckCircle2 = ({ size = 24, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <circle cx="12" cy="12" r="10" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+const Instagram = ({ size = 24, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+  </svg>
+);
+
 const LOGO = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZap5l6GM8fSmWaOGxThKWSsZRkbij6YCLfyJ5M2lPGkljBC40scO4pYA&s=10";
 const VIDEO = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
 
@@ -42,7 +53,7 @@ html{scroll-behavior:smooth}
 .lx-btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-130%);transition:transform .7s}
 .lx-btn:hover::after{transform:translateX(130%)}
 .lx-stagger>*{animation:lx-rise .6s cubic-bezier(.2,.8,.2,1) both}
-${Array.from({length:12},(_,i)=>`.lx-stagger>*:nth-child(${i+1}){animation-delay:${i*70}ms}`).join("")}
+${Array.from({ length: 12 }, (_, i) => `.lx-stagger>*:nth-child(${i + 1}){animation-delay:${i * 70}ms}`).join("")}
 @media (prefers-reduced-motion:reduce){.lx-float,.lx-rise,.lx-pop,.lx-shine,.lx-marquee,.lx-pulse,.lx-bob,.lx-grow,.lx-grow-x,.lx-stagger>*{animation:none}}
 `;
 
@@ -50,7 +61,6 @@ ${Array.from({length:12},(_,i)=>`.lx-stagger>*:nth-child(${i+1}){animation-delay
 const art = (a, b, c) => `data:image/svg+xml;utf8,${encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient></defs><rect width='400' height='500' fill='url(#g)'/>${Array.from({ length: 9 }, (_, i) => `<path d='M${40 + i * 40} -10 C ${120 + i * 20} 140, ${-20 + i * 50} 300, ${60 + i * 38} 520' stroke='${c}' stroke-opacity='.${3 + (i % 4)}' stroke-width='${10 + (i % 3) * 6}' fill='none' stroke-linecap='round'/>`).join("")}<circle cx='320' cy='90' r='46' fill='${c}' fill-opacity='.25'/></svg>`
 )}`;
-
 
 const shaveArt = () => `data:image/svg+xml;utf8,${encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#0b1a3a'/><stop offset='1' stop-color='#000'/></linearGradient><clipPath id='p'><rect x='70' y='90' width='70' height='320' rx='35'/></clipPath></defs><rect width='400' height='500' fill='url(#g)'/><g clip-path='url(#p)'><rect x='60' y='80' width='90' height='340' fill='#fff'/>${Array.from({ length: 7 }, (_, i) => `<path d='M60 ${60 + i * 56} L150 ${110 + i * 56} L150 ${142 + i * 56} L60 ${92 + i * 56} Z' fill='${i % 2 ? "#3b82f6" : "#ff4500"}'/>`).join("")}</g><rect x='62' y='70' width='86' height='28' rx='14' fill='#10b981'/><rect x='62' y='402' width='86' height='28' rx='14' fill='#10b981'/><g transform='rotate(-24 270 260)'><rect x='120' y='245' width='110' height='16' rx='6' fill='#e2e8f0'/><rect x='215' y='236' width='130' height='34' rx='14' fill='#ff4500'/><circle cx='330' cy='253' r='6' fill='#fff'/></g><g fill='#fff'><circle cx='250' cy='370' r='34'/><circle cx='290' cy='350' r='28'/><circle cx='322' cy='378' r='30'/><circle cx='280' cy='396' r='26'/></g><text x='200' y='470' text-anchor='middle' font-family='Georgia,serif' font-size='26' fill='#fff'>Classic hot-towel shave</text></svg>`
@@ -84,7 +94,7 @@ function useStored(key, initial) {
   const [v, setV] = useState(() => {
     try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : initial; } catch { return initial; }
   });
-  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }, [key, v]);
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* ignore */ } }, [key, v]);
   return [v, setV];
 }
 
@@ -207,7 +217,7 @@ function MediaCard({ m, onDelete }) {
 
 function ServiceCard({ s, onBook, onDelete }) {
   return (
-    <div className={`${card} flex lx-wiggle flex flex-col justify-between gap-5 p-5 transition hover:-translate-y-1 hover:border-[#ff4500]/60`}>
+    <div className={`${card} lx-wiggle flex flex-col justify-between gap-5 p-5 transition hover:-translate-y-1 hover:border-[#ff4500]/60`}>
       <div>
         <div className={`${grad} mb-4 grid h-11 w-11 place-items-center rounded-xl text-white`}><Scissors className="lx-ico" size={20} /></div>
         <h3 className="lx-display text-lg font-bold text-slate-900 dark:text-white">{s.title}</h3>
@@ -239,7 +249,12 @@ function useCountUp(target, ms = 900) {
   const [n, setN] = useState(0);
   useEffect(() => {
     let raf, t0;
-    const tick = (t) => { t0 ??= t; const p = Math.min((t - t0) / ms, 1); setN(Math.round(target * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(tick); };
+    const tick = (t) => {
+      if (t0 === undefined) t0 = t;
+      const p = Math.min((t - t0) / ms, 1);
+      setN(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [target, ms]);
@@ -267,7 +282,6 @@ export default function LeclatSalon() {
   const [media, setMedia] = useStored("leclat_media_v3", seed.media);
   const [bookings, setBookings] = useStored("leclat_bookings", seed.bookings);
 
-  const [userTab, setUserTab] = useState("feed");
   const [adminTab, setAdminTab] = useState("overview");
   const [loginOpen, setLoginOpen] = useState(false);
   const [booking, setBooking] = useState(null);
@@ -284,9 +298,10 @@ export default function LeclatSalon() {
       try {
         const blob = await loadFile(m.id);
         if (blob && alive) setFileUrls((u) => ({ ...u, [m.id]: URL.createObjectURL(blob) }));
-      } catch {}
+      } catch { /* ignore */ }
     });
     return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media]);
   const shownMedia = media.map((m) => {
     if (m.local) return { ...m, url: fileUrls[m.id] };
@@ -326,7 +341,7 @@ export default function LeclatSalon() {
   const addWorker = (e) => {
     e.preventDefault(); const f = new FormData(e.target);
     setWorkers([...workers, { id: Date.now().toString(), name: f.get("name"), role: f.get("role"), schedule: f.get("schedule") }]);
-    e.target.reset(); notify("Stylist added", `${f.get("name")} joined the team.`);
+    notify("Stylist added", `${f.get("name")} joined the team.`); e.target.reset();
   };
   const addService = (e) => {
     e.preventDefault(); const f = new FormData(e.target);
@@ -343,11 +358,6 @@ export default function LeclatSalon() {
     notify("Appointment reserved", `${b.name}, you're booked for ${b.service} on ${b.date} at ${b.time}.`);
   };
 
-  const publicTabs = [
-    { id: "feed", label: "Salon feed", icon: Film },
-    { id: "services", label: "Services & booking", icon: Scissors },
-    { id: "team", label: "Our stylists", icon: Users },
-  ];
   const adminTabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "media", label: "Media", icon: Upload },
@@ -557,11 +567,15 @@ function Landing({ media, services, workers, bookings, onBook }) {
   const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const hero = media.find((m) => m.type !== "image" && m.url) || media.find((m) => m.url);
   const shown = media.filter((m) => filter === "all" || m.type === filter);
+  const nServices = useCountUp(services.length);
+  const nWorkers = useCountUp(workers.length);
+  const nBookings = useCountUp(bookings.length);
+  const nDays = useCountUp(7);
   const stats = [
-    [useCountUp(services.length), "Treatments on the menu"],
-    [useCountUp(workers.length), "Friendly stylists"],
-    [useCountUp(bookings.length), "Appointments booked"],
-    [useCountUp(7), "Days open each week"],
+    [nServices, "Treatments on the menu"],
+    [nWorkers, "Friendly stylists"],
+    [nBookings, "Appointments booked"],
+    [nDays, "Days open each week"],
   ];
   const why = [
     { icon: Leaf, t: "Gentle on your hair", d: "Natural, nourishing products chosen for textured hair." },
@@ -755,7 +769,7 @@ function Landing({ media, services, workers, bookings, onBook }) {
       <footer className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 pb-4 pt-8 text-sm text-slate-500 sm:flex-row dark:border-blue-400/15">
         <Logo small />
         <p>© {new Date().getFullYear()} L'Éclat Salon & Spa, Kigali</p>
-        <Instagram size={18} />
+        <a href="https://instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram" className="transition hover:text-[#ff4500]"><Instagram size={18} /></a>
       </footer>
     </div>
   );
@@ -790,7 +804,7 @@ function Overview({ bookings, workers, services, media, revenue, goTab }) {
           <h3 className="lx-display mb-5 text-lg font-bold">Next 7 days</h3>
           <div className="flex h-44 items-end gap-3">
             {week.map((d) => (
-              <div key={d.label} className="flex flex-1 flex-col items-center gap-2">
+              <div key={d.label} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
                 <span className="text-xs font-semibold text-slate-500">{d.n}</span>
                 <div className="lx-grow w-full rounded-t-2xl bg-gradient-to-t from-[#ff4500] to-[#ff7a1a]" style={{ height: `${Math.max(6, (d.n / max) * 100)}%`, opacity: d.n ? 1 : 0.25 }} />
                 <span className="text-xs text-slate-500">{d.label}</span>
